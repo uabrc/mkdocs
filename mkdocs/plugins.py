@@ -312,6 +312,11 @@ class BasePlugin(Generic[SomeConfig]):
         The `pre_page` event is called before any actions are taken on the subject
         page and can be used to alter the `Page` instance.
 
+        Changes to `page.markdown` and `page.meta` are discarded after this event.
+
+        To modify `page.markdown`, use `on_page_markdown()`.
+        To modify `page.meta`, use `on_page_meta()`.
+
         Args:
             page: `mkdocs.structure.pages.Page` instance
             config: global configuration object
@@ -342,6 +347,26 @@ class BasePlugin(Generic[SomeConfig]):
         """
         return None
 
+    def on_page_meta(
+        self, meta: dict, /, *, page: Page, config: MkDocsConfig, files: Files
+    ) -> dict | None:
+        """
+        The `page_meta` event is called after the page's markdown is loaded from
+        file and can be used to alter the page metadata.
+
+        To modify `page.markdown`, use `on_page_markdown()`.
+
+        Args:
+            meta: Metadata of page as dict
+            page: `mkdocs.structure.pages.Page` instance
+            config: global configuration object
+            files: global files collection
+
+        Returns:
+            Markdown source text of page as string
+        """
+        return meta
+
     def on_page_markdown(
         self, markdown: str, /, *, page: Page, config: MkDocsConfig, files: Files
     ) -> str | None:
@@ -349,6 +374,8 @@ class BasePlugin(Generic[SomeConfig]):
         The `page_markdown` event is called after the page's markdown is loaded
         from file and can be used to alter the Markdown source text. The meta-
         data has been stripped off and is available as `page.meta` at this point.
+
+        To modify `page.meta`, use `on_page_meta()`.
 
         Args:
             markdown: Markdown source text of page as string
@@ -628,6 +655,11 @@ class PluginCollection(dict, MutableMapping[str, BasePlugin]):
 
     def on_page_read_source(self, *, page: Page, config: MkDocsConfig) -> str | None:
         return self.run_event('page_read_source', page=page, config=config)
+
+    def on_page_meta(
+        self, meta: MutableMapping[str, Any], *, page: Page, config: MkDocsConfig, files: Files,
+    ) -> MutableMapping[str, Any]:
+        return self.run_event('page_meta', meta, page=page, config=config, files=files)
 
     def on_page_markdown(
         self, markdown: str, *, page: Page, config: MkDocsConfig, files: Files

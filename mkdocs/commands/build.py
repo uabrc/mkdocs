@@ -159,6 +159,11 @@ def _populate_page(page: Page, config: MkDocsConfig, files: Files, dirty: bool =
         page.read_source(config)
         assert page.markdown is not None
 
+        # Run `page_meta` plugin events.
+        page.meta = config.plugins.on_page_meta(
+            page.meta, page=page, config=config, files=files
+        )
+
         # Run `page_markdown` plugin events.
         page.markdown = config.plugins.on_page_markdown(
             page.markdown, page=page, config=config, files=files

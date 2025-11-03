@@ -125,6 +125,7 @@ class TestPluginCollection(unittest.TestCase):
                 'post_template': [],
                 'pre_page': [],
                 'page_read_source': [plugin.on_page_read_source],
+                'page_meta': [],
                 'page_markdown': [],
                 'page_content': [plugin.on_page_content],
                 'page_context': [],
